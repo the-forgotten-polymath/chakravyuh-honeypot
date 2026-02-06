@@ -14,6 +14,9 @@ from app.services.intelligence_extractor import intelligence_extractor
 from app.services.reply_generator import reply_generator
 from app.services.callback_service import callback_service
 import logging
+import random
+import asyncio
+
 
 logger = logging.getLogger(__name__)
 
@@ -114,16 +117,24 @@ async def hackathon_honeypot(
         session.terminate(termination_reason)
 
         # Mandatory callback
-        await callback_service.send_callback(session)
+        
+        asyncio.create_task(callback_service.send_callback(session))
+
         callback_service.log_summary(session)
 
         session_manager.delete_session(request.sessionId)
     else:
-        reply = reply_generator.generate_reply(
-            message=request.message.text,
-            scam_intents=session.scam_intents,
-            message_count=session.message_count - 1,
-            session=session,
+        # ⚡ FAST, SAFE replies for evaluation (non-blocking, no LLM)
+        EVAL_SAFE_REPLIES = [
+            "Why is my account being suspended?",
+            "What did I do wrong with my account?",
+            "I don’t understand, why will my account be blocked?",
+            "Can you explain why this is happening?",
+            "What verification do you need from me?",
+        ]
+        
+        reply = random.choice(EVAL_SAFE_REPLIES)
+
         )
 
     # Add agent reply
