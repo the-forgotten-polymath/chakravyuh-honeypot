@@ -135,7 +135,6 @@ async def hackathon_honeypot(
         
         reply = random.choice(EVAL_SAFE_REPLIES)
 
-        )
 
     # Add agent reply
     session.add_message("agent", reply)
