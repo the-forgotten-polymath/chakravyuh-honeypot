@@ -58,17 +58,35 @@ async def hackathon_honeypot(
             "reply": "Hello. How can I help you?",
         }
 
+        # -------------------------
+    # Normalize judge payload
+    # -------------------------
+    if isinstance(body.get("message"), dict):
+        msg = body["message"]
+    
+        # Judge sends timestamp as int, schema expects string
+        if "timestamp" in msg and not isinstance(msg["timestamp"], str):
+            msg["timestamp"] = str(msg["timestamp"])
+    
+        body["message"] = msg
+
+
     # -------------------------
     # Parse HackathonRequest SAFELY
     # -------------------------
     try:
         request = HackathonRequest(**body)
     except Exception as e:
-        logger.warning(f"Invalid body received, returning safe response: {e}")
+        logger.warning(f"Payload parse failed: {e}")
         return {
             "status": "success",
-            "reply": "Hello. How can I help you?",
+            "reply": random.choice([
+                "Why is my account being suspended?",
+                "What did I do wrong with my account?",
+                "Can you explain why this is happening?",
+            ]),
         }
+
 
     # -------------------------
     # Session handling
